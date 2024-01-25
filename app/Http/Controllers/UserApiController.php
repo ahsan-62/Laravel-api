@@ -123,11 +123,19 @@ class UserApiController extends Controller
            }
 
            $user=User::find($id);
+
+          if(empty($user)){
+              $message='User not found';
+              return response()->json(['message'=>$message],404);
+          }
+
+           else if($id==$user->id){
            $user->name=$data['name'];
            $user->password=$data['password'];
            $user->save();
            $message='User updated successfully';
            return response()->json(['message'=>$message],200);
+           }
        }
      }
 }
