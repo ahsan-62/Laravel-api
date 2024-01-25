@@ -100,6 +100,34 @@ class UserApiController extends Controller
             }
             return response()->json(['message'=>$message],200);
 
-    }
-   }
+        }
+     }
+
+     public function updateUser($id,Request $request) {
+       if($request->isMethod('put')){
+           $data=$request->all();
+
+           $rules=[
+               'name'=>'required',
+               'password'=>'required',
+           ];
+
+           $customMessage=[
+               'name.required'=>'Name is required',
+               'password.required'=>'Password is required',
+           ];
+
+           $validator=Validator::make($data,$rules,$customMessage);
+           if($validator->fails()){
+               return response()->json(['error'=>$validator->errors()],422);
+           }
+
+           $user=User::find($id);
+           $user->name=$data['name'];
+           $user->password=$data['password'];
+           $user->save();
+           $message='User updated successfully';
+           return response()->json(['message'=>$message],200);
+       }
+     }
 }
