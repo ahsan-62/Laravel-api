@@ -25,3 +25,9 @@ Route::post('/create-user',[UserApiController::class,'createUser']);
 Route::post('/create-multiuser',[UserApiController::class,'createMultiUser']);
 
 Route::put('/update-user/{id}',[UserApiController::class,'updateUser']);
+
+Route::delete('/delete-user/{id}',[UserApiController::class,'deleteUser']);
+
+Route::delete('/user-delete-json',[UserApiController::class,'deleteUserJson']);
+
+Route::delete('/delete-multiuser/{ids}',[UserApiController::class,'deleteMultiUsers']);

@@ -138,4 +138,45 @@ class UserApiController extends Controller
            }
        }
      }
+
+    public function deleteUser($id=0){
+        User::findOrFail($id)->delete();
+        $message='User deleted successfully';
+        return response()->json(['message'=>$message],200);
+    }
+
+
+    public function deleteUserJson(Request $request){
+        $data=$request->all();
+        User::findOrFail($data['id'])->delete();
+        $message='User deleted successfully';
+        return response()->json(['message'=>$message],200);
+    }
+
+
+public function deleteMultiUsers(Request $request,$ids){
+
+
+    $header= $request->header('Authorization');
+
+    if($header==''){
+        $message='Authorization header is required';
+        return response()->json(['message'=>$message],401);
+    }
+    else{
+        if($header=='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImFoc2FuIiwiaWF0IjoxNTE2MjM5MDIyfQ.MpUc6kUXVJpYXa26KZNqUkIKQGNJqoFqcf2o4yr_wVs'){
+
+            User::whereIn('id',explode(",",$ids))->delete();
+            $message='User deleted successfully';
+            return response()->json(['message'=>$message],200);
+
+        }
+        else{
+            $message='Authorization does not match';
+            return response()->json(['message'=>$message],401);
+        }
+    }
+
+
+}
 }
