@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class UserApiController extends Controller
@@ -179,4 +180,100 @@ public function deleteMultiUsers(Request $request,$ids){
 
 
 }
+
+    public function registerApiUser(Request $request){
+
+        if($request->isMethod('post')){
+
+            $data=$request->all();
+
+            $rules=[
+
+                'name'=>'required',
+                'email'=>'required|email|unique:users',
+                'password'=>'required',
+            ];
+
+            $customMessage=[
+                'name.required'=>'Name is required',
+                'email.required'=>'Email is required',
+                'email.email'=>'Email must be valid',
+                'email.unique'=>'Email already exists',
+                'password.required'=>'Password is required',
+            ];
+
+            $validator= Validator::make($data,$rules,$customMessage);
+            if($validator->fails()){
+                return response()->json(['error'=>$validator->errors()],422);
+            }
+
+
+            $user= new User();
+            $user->name=$data['name'];
+            $user->email=$data['email'];
+            $user->password=bcrypt($data['password']);
+            $user->save();
+
+            if(Auth::attempt(['email'=>$data['email'],'password'=>$data['password']])){
+
+                $user=User::where('email',$data['email'])->first();
+                $access_token=$user->createtoken($data['email'])->accessToken;
+                User::where('email',$data['email'])->update(['access_token'=>$access_token]);
+
+                $message='User created successfully';
+                return response()->json(['message'=>$message,'access_token'=>$access_token],200);
+
+            }
+            else{
+                $message='Opps! Something went wrong';
+                return response()->json(['message'=>$message],422);
+            }
+
+
+        }
+    }
+
+
+
+    public function loginApiUser(Request $request){
+
+        if($request->isMethod('post')){
+            $data=$request->all();
+
+            $rules=[
+                'email'=>'required|email|exists:users,email',
+                'password'=>'required',
+            ];
+
+            $customMessage=[
+                'email.required'=>'Email is required',
+                'email.email'=>'Email must be valid',
+                'email.exists'=>'Email does not exists',
+                'password.required'=>'Password is required',
+            ];
+
+            $validator= Validator::make($data,$rules,$customMessage);
+            if($validator->fails()){
+                return response()->json(['error'=>$validator->errors()],422);
+            }
+
+
+            if(Auth::attempt(['email'=>$data['email'],'password'=>$data['password']])){
+
+                $user=User::where('email',$data['email'])->first();
+                $access_token=$user->createtoken($data['email'])->accessToken;
+                User::where('email',$data['email'])->update(['access_token'=>$access_token]);
+                $message='User logged in successfully';
+                return response()->json(['message'=>$message,'access_token'=>$access_token],200);
+            }
+
+            else {
+                $message='Opps! Something went wrong';
+                return response()->json(['message'=>$message],422);
+            }
+         }
+     }
+
+
+
 }

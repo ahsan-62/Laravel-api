@@ -31,3 +31,7 @@ Route::delete('/delete-user/{id}',[UserApiController::class,'deleteUser']);
 Route::delete('/user-delete-json',[UserApiController::class,'deleteUserJson']);
 
 Route::delete('/delete-multiuser/{ids}',[UserApiController::class,'deleteMultiUsers']);
+
+Route::post('/register-api-user', [UserApiController::class, 'registerApiUser']);
+
+Route::post('/login-api-user', [UserApiController::class, 'loginApiUser']);
